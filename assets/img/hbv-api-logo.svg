@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" rx="28" fill="#0a0a0a" />
+  <g fill="none" stroke="#fbee00" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64 168c0-40 28-72 64-72s64 32 64 72"/>
+    <path d="M88 176h80"/>
+    <path d="M96 112c8-24 24-36 32-36s24 12 32 36"/>
+    <circle cx="102" cy="144" r="6"/>
+    <circle cx="154" cy="144" r="6"/>
+    <path d="M128 188v22"/>
+  </g>
+  <text x="128" y="236" font-size="20" text-anchor="middle" fill="#fbee00" font-family="Consolas, monospace">HBV · API</text>
+</svg>

@@ -1,0 +1,55 @@
+/* HBV Pure Theme: black / hyper yellow */
+:root{
+  --hbv-bg:#0a0a0a;
+  --hbv-fg:#fbee00; /* HBV yellow */
+  --hbv-fg-dim:#c9bd00;
+  --hbv-accent:#3aa0ff;
+  --hbv-card:#111213;
+  --hbv-border:#1c1d1f;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--hbv-bg);
+  color:var(--hbv-fg);
+  font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,Monaco,monospace;
+  line-height:1.6;
+}
+
+.site-header{
+  border-bottom:1px solid var(--hbv-border);
+  padding:16px 20px;
+  background:linear-gradient(180deg, #0b0b0b 0%, #0a0a0a 100%);
+  position:sticky; top:0; z-index:10;
+}
+
+.brand{display:flex;align-items:center;gap:12px;max-width:1100px;margin:0 auto;}
+.logo{width:48px;height:48px}
+.brand-text h1{margin:0;font-size:20px;letter-spacing:.5px}
+.brand-text .sub{margin:0;color:var(--hbv-fg-dim);font-size:13px}
+
+.content{max-width:1100px;margin:24px auto;padding:0 16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.panel{
+  background:var(--hbv-card);
+  border:1px solid var(--hbv-border);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+
+h2{margin-top:0;font-size:18px}
+a{color:var(--hbv-accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.list{list-style:none;padding:0;margin:0}
+.list li{padding:6px 0;border-bottom:1px dashed var(--hbv-border)}
+.list li:last-child{border-bottom:none}
+
+.site-footer{
+  border-top:1px solid var(--hbv-border);
+  padding:20px;
+  text-align:center;
+  color:var(--hbv-fg-dim);
+}

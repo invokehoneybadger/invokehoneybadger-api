@@ -1,0 +1,21 @@
+{
+  "version": "2.0-beta",
+  "base_url": "https://api.invokehoneybadger.com/api/v2/",
+  "endpoints": [
+    {
+      "path": "status",
+      "method": "GET",
+      "description": "Returns API status (extended)"
+    },
+    {
+      "path": "modules",
+      "method": "GET",
+      "description": "Lists available HBV modules (detailed)"
+    },
+    {
+      "path": "telemetry",
+      "method": "POST",
+      "description": "Submit telemetry (mock sink)"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "base_url": "https://api.invokehoneybadger.com/api/v1/",
+  "endpoints": [
+    {
+      "path": "status",
+      "method": "GET",
+      "description": "Returns API status"
+    },
+    {
+      "path": "modules",
+      "method": "GET",
+      "description": "Lists available HBV modules"
+    }
+  ]
+}
