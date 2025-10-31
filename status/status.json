@@ -1,0 +1,12 @@
+{
+  "wifi": true,
+  "camera": true,
+  "psram": true,
+  "motion": false,
+  "heap_free": 130876,
+  "psram_free": 4194304,
+  "uptime": 12543,
+  "eyes_connected": 8,
+  "alerts": 0,
+  "temperature": 43.2
+}
