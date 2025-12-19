@@ -2,19 +2,417 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>HBV API v1 Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HBV API v1 Documentation</title>
+  <meta name="description" content="Complete API v1 documentation for HoneyBadger Vanguard REST endpoints.">
   <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
-  <header class="site-header"><div class="brand-text"><h1>HBV API v1</h1></div></header>
+  <header class="site-header">
+    <div class="brand">
+      <div class="version-badge">v1</div>
+      <div class="brand-text">
+        <h1>HBV API v1 Documentation</h1>
+        <p class="sub">Core REST API Endpoints</p>
+      </div>
+    </div>
+  </header>
+
   <main class="content">
+    <!-- Overview -->
     <section class="panel">
       <h2>Overview</h2>
-      <p>Mock documentation for v1 endpoints.</p>
-      <p><a href="endpoints.json">View endpoints.json</a></p>
-      <p><a href="/">← Back to API Gateway</a></p>
+      <p>HBV API v1 provides core REST endpoints for HoneyBadger Vanguard tools to beacon, submit results, and query data from self-hosted instances.</p>
+
+      <div class="note">
+        <strong>Note:</strong> This documentation describes the API specification. To run a functional backend, see the <a href="https://github.com/invokehoneybadger/invokehoneybadger-api/tree/main/self-hosted">self-hosting guide</a>.
+      </div>
+
+      <h3>Base URL</h3>
+      <div class="code-block">
+        <pre><code>https://your-api.local/api/v1</code></pre>
+      </div>
+
+      <h3>Features</h3>
+      <ul class="list">
+        <li>API key authentication</li>
+        <li>Rate limiting (100 requests/min)</li>
+        <li>JSON request/response format</li>
+        <li>Health monitoring endpoints</li>
+        <li>Agent registration and beaconing</li>
+        <li>Results submission and querying</li>
+      </ul>
+    </section>
+
+    <!-- Authentication -->
+    <section class="panel">
+      <h2>Authentication</h2>
+      <p>All protected endpoints require an API key passed via header:</p>
+
+      <div class="code-block">
+        <pre><code># Option 1: X-API-Key header
+curl -H "X-API-Key: hbv_your_api_key_here" \
+  https://your-api.local/api/v1/agents
+
+# Option 2: Authorization Bearer token
+curl -H "Authorization: Bearer hbv_your_api_key_here" \
+  https://your-api.local/api/v1/agents</code></pre>
+      </div>
+
+      <p>Generate API keys using the self-hosted deployment:</p>
+      <div class="code-block">
+        <pre><code>docker-compose exec api npm run generate-api-key -- "My Key"</code></pre>
+      </div>
+    </section>
+
+    <!-- Endpoints -->
+    <section class="panel">
+      <h2>Endpoints</h2>
+
+      <!-- GET /status -->
+      <div class="endpoint-card">
+        <h3><span class="method-get">GET</span> /api/v1/status</h3>
+        <p><strong>Public endpoint</strong> - Health check and service status</p>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "status": "operational",
+  "version": "1.0.0",
+  "timestamp": "2025-12-19T12:00:00Z",
+  "services": {
+    "database": "healthy",
+    "cache": "healthy"
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- GET /modules -->
+      <div class="endpoint-card">
+        <h3><span class="method-get">GET</span> /api/v1/modules</h3>
+        <p><strong>Public endpoint</strong> - List available HBV modules</p>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "modules": [
+    {
+      "name": "port-scan",
+      "description": "Network port scanning and service detection",
+      "version": "1.0.0",
+      "category": "recon"
+    },
+    {
+      "name": "subdomain-enum",
+      "description": "Subdomain enumeration and discovery",
+      "version": "1.0.0",
+      "category": "recon"
+    }
+  ],
+  "count": 2
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- POST /beacon -->
+      <div class="endpoint-card">
+        <h3><span class="method-post">POST</span> /api/v1/beacon</h3>
+        <p><strong>Protected endpoint</strong> - Agent check-in and registration</p>
+
+        <h4>Request Body</h4>
+        <div class="code-block">
+          <pre><code>{
+  "agent_id": "agent-001",
+  "hostname": "recon-box-01",
+  "platform": "linux",
+  "version": "1.0.0",
+  "metadata": {
+    "location": "datacenter-1"
+  }
+}</code></pre>
+        </div>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "success": true,
+  "agent_id": "agent-001",
+  "timestamp": "2025-12-19T12:00:00Z"
+}</code></pre>
+        </div>
+
+        <h4>cURL Example</h4>
+        <div class="code-block">
+          <pre><code>curl -X POST https://your-api.local/api/v1/beacon \
+  -H "X-API-Key: hbv_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_id": "agent-001",
+    "hostname": "recon-box-01",
+    "platform": "linux"
+  }'</code></pre>
+        </div>
+      </div>
+
+      <!-- POST /results -->
+      <div class="endpoint-card">
+        <h3><span class="method-post">POST</span> /api/v1/results</h3>
+        <p><strong>Protected endpoint</strong> - Submit scan/recon results</p>
+
+        <h4>Request Body</h4>
+        <div class="code-block">
+          <pre><code>{
+  "agent_id": "agent-001",
+  "module": "port-scan",
+  "target": "example.com",
+  "result_type": "open_ports",
+  "data": {
+    "ports": [80, 443, 22],
+    "scan_time": 2.5
+  },
+  "severity": "low"
+}</code></pre>
+        </div>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "success": true,
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "timestamp": "2025-12-19T12:00:00Z"
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- GET /results -->
+      <div class="endpoint-card">
+        <h3><span class="method-get">GET</span> /api/v1/results</h3>
+        <p><strong>Protected endpoint</strong> - Query submitted results</p>
+
+        <h4>Query Parameters</h4>
+        <ul class="list">
+          <li><code>agent_id</code> - Filter by agent ID</li>
+          <li><code>module</code> - Filter by module name</li>
+          <li><code>severity</code> - Filter by severity (low, medium, high, critical)</li>
+          <li><code>limit</code> - Results per page (default: 100)</li>
+          <li><code>offset</code> - Pagination offset (default: 0)</li>
+          <li><code>since</code> - ISO 8601 timestamp to filter results after</li>
+        </ul>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "results": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "agent_id": "agent-001",
+      "module": "port-scan",
+      "target": "example.com",
+      "data": {"ports": [80, 443]},
+      "timestamp": "2025-12-19T12:00:00Z"
+    }
+  ],
+  "count": 1,
+  "limit": 100,
+  "offset": 0
+}</code></pre>
+        </div>
+
+        <h4>cURL Example</h4>
+        <div class="code-block">
+          <pre><code>curl -H "X-API-Key: hbv_your_key" \
+  "https://your-api.local/api/v1/results?agent_id=agent-001&limit=50"</code></pre>
+        </div>
+      </div>
+
+      <!-- GET /agents -->
+      <div class="endpoint-card">
+        <h3><span class="method-get">GET</span> /api/v1/agents</h3>
+        <p><strong>Protected endpoint</strong> - List registered agents</p>
+
+        <h4>Query Parameters</h4>
+        <ul class="list">
+          <li><code>active_only</code> - Filter active agents only (default: true)</li>
+        </ul>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "agents": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "agent_id": "agent-001",
+      "hostname": "recon-box-01",
+      "platform": "linux",
+      "first_seen": "2025-12-19T10:00:00Z",
+      "last_seen": "2025-12-19T12:00:00Z",
+      "is_active": true
+    }
+  ],
+  "count": 1
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error Codes -->
+    <section class="panel">
+      <h2>Error Codes</h2>
+      <table class="error-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Solution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>400</code></td>
+            <td>Bad Request</td>
+            <td>Check request body format and required fields</td>
+          </tr>
+          <tr>
+            <td><code>401</code></td>
+            <td>Unauthorized</td>
+            <td>Provide valid API key in headers</td>
+          </tr>
+          <tr>
+            <td><code>429</code></td>
+            <td>Too Many Requests</td>
+            <td>Rate limit exceeded, wait before retrying</td>
+          </tr>
+          <tr>
+            <td><code>500</code></td>
+            <td>Internal Server Error</td>
+            <td>Check server logs for details</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Code Examples -->
+    <section class="panel">
+      <h2>Code Examples</h2>
+
+      <h3>Python Client</h3>
+      <div class="code-block">
+        <pre><code>import requests
+
+class HBVClient:
+    def __init__(self, api_url, api_key):
+        self.api_url = api_url
+        self.headers = {'X-API-Key': api_key}
+
+    def beacon(self, agent_id, hostname, platform):
+        response = requests.post(
+            f'{self.api_url}/api/v1/beacon',
+            headers=self.headers,
+            json={
+                'agent_id': agent_id,
+                'hostname': hostname,
+                'platform': platform
+            }
+        )
+        return response.json()
+
+    def submit_result(self, agent_id, module, target, data):
+        response = requests.post(
+            f'{self.api_url}/api/v1/results',
+            headers=self.headers,
+            json={
+                'agent_id': agent_id,
+                'module': module,
+                'target': target,
+                'data': data
+            }
+        )
+        return response.json()
+
+# Usage
+client = HBVClient('https://your-api.local', 'hbv_your_key')
+client.beacon('agent-001', 'recon-box', 'linux')
+client.submit_result('agent-001', 'port-scan', 'example.com', {'ports': [80, 443]})</code></pre>
+      </div>
+    </section>
+
+    <!-- Back Link -->
+    <section class="panel">
+      <p><a href="/" class="btn-secondary">← Back to API Gateway</a></p>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <p>© 2025 HoneyBadger Vanguard — API v1 Documentation</p>
+  </footer>
+
+  <style>
+    .endpoint-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--hbv-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .endpoint-card h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .method-get, .method-post {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      font-family: monospace;
+    }
+
+    .method-get {
+      background: var(--hbv-accent);
+      color: #000;
+    }
+
+    .method-post {
+      background: var(--hbv-green);
+      color: #000;
+    }
+
+    .endpoint-card h4 {
+      color: var(--hbv-fg-dim);
+      font-size: 15px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .error-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .error-table th,
+    .error-table td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid var(--hbv-border);
+    }
+
+    .error-table th {
+      background: rgba(251, 238, 0, 0.1);
+      color: var(--hbv-fg);
+      font-weight: 600;
+    }
+
+    .error-table code {
+      background: rgba(255, 0, 0, 0.2);
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+  </style>
 </body>
 </html>

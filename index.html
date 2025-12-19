@@ -4,13 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>HoneyBadger Vanguard — API Gateway</title>
-  <meta name="description" content="HBV API gateway: versions, docs, and status.">
+  <meta name="description" content="HBV API Gateway: REST API endpoints for HoneyBadger Vanguard tools, status monitoring, and documentation.">
+
+  <!-- Security Headers -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <!-- SEO & Social Meta Tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HoneyBadger Vanguard">
+  <meta property="og:title" content="HBV API Gateway">
+  <meta property="og:description" content="REST API endpoints for HoneyBadger Vanguard red-team tools and recon frameworks.">
+  <meta property="og:url" content="https://api.invokehoneybadger.com">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="HBV API Gateway">
+  <meta name="twitter:description" content="REST API endpoints for HoneyBadger Vanguard red-team tools.">
+
+  <!-- Accessibility -->
+  <link rel="canonical" href="https://api.invokehoneybadger.com">
+
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+  <!-- Accessibility: Skip to main content -->
+  <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
   <header class="site-header">
     <div class="brand">
-      <img src="assets/img/hbv-api-logo.svg" alt="HBV API" class="logo">
+      <img src="assets/img/hbv-api-logo.svg" alt="HBV API" class="logo" role="img">
       <div class="brand-text">
         <h1>HoneyBadger Vanguard</h1>
         <p class="sub">API Gateway · <strong>api.invokehoneybadger.com</strong></p>
@@ -18,31 +39,113 @@
     </div>
   </header>
 
-  <main class="content">
-    <section class="panel">
-      <h2>Available API Versions</h2>
-      <ul class="list">
-        <li><a href="/api/v1/docs.html">v1 — Core Endpoints</a></li>
-        <li><a href="/api/v2/docs.html">v2 — Enhanced / Experimental</a></li>
-      </ul>
+  <main id="main-content" class="content">
+    <!-- API Status Section -->
+    <section class="panel status-panel">
+      <h2>API Status</h2>
+      <div class="status-grid">
+        <div class="status-card" role="status" aria-live="polite">
+          <div class="status-header">
+            <span class="version-badge">v1</span>
+            <span class="status-indicator status-operational" aria-label="Operational">
+              <span class="pulse"></span>
+              Operational
+            </span>
+          </div>
+          <p class="status-desc">Core REST API endpoints for HBV tools</p>
+          <a href="/api/v1/docs.html" class="btn-secondary">View Docs</a>
+        </div>
+
+        <div class="status-card" role="status" aria-live="polite">
+          <div class="status-header">
+            <span class="version-badge badge-beta">v2</span>
+            <span class="status-indicator status-beta" aria-label="Beta">
+              <span class="pulse"></span>
+              Beta
+            </span>
+          </div>
+          <p class="status-desc">Enhanced features: webhooks, batch ops, GraphQL</p>
+          <a href="/api/v2/docs.html" class="btn-secondary">View Docs</a>
+        </div>
+      </div>
     </section>
 
+    <!-- Quick Start Section -->
+    <section class="panel">
+      <h2>Quick Start</h2>
+      <div class="code-block">
+        <pre><code># Check API status
+curl https://api.invokehoneybadger.com/api/v1/status
+
+# List available modules
+curl https://api.invokehoneybadger.com/api/v1/modules
+
+# With authentication (self-hosted)
+curl -H "X-API-Key: your_key" https://your-api.local/api/v1/agents</code></pre>
+      </div>
+      <p class="note"><strong>Note:</strong> This site displays API documentation and status. For a functional backend, see the self-hosting guide below.</p>
+    </section>
+
+    <!-- Self-Hosting Section -->
+    <section class="panel">
+      <h2>Self-Hosting</h2>
+      <p>Deploy your own private HBV API instance with Docker Compose:</p>
+      <div class="code-block">
+        <pre><code>git clone https://github.com/invokehoneybadger/invokehoneybadger-api.git
+cd invokehoneybadger-api/self-hosted
+cp .env.example .env
+# Edit .env with your secrets
+docker-compose up -d</code></pre>
+      </div>
+      <p><strong>Zero-trust with Twingate:</strong> Deploy behind Twingate connectors for private network access without public exposure.</p>
+      <a href="https://github.com/invokehoneybadger/invokehoneybadger-api/tree/main/self-hosted" class="btn-primary" target="_blank" rel="noopener">Self-Hosting Guide</a>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="panel">
+      <h2>Architecture</h2>
+      <p><strong>Local-First Design:</strong> HBV tools are designed to operate locally by default for maximum OPSEC. Results are saved to local files unless explicitly configured to sync with a self-hosted API.</p>
+
+      <h3>Optional Cloud Sync</h3>
+      <ul class="list">
+        <li>Deploy your own API backend (Docker Compose template provided)</li>
+        <li>Use Twingate or VPN for zero-trust access</li>
+        <li>Configure HBV tools with <code>--api-endpoint</code> flag</li>
+        <li>Centralize data collection across multiple agents</li>
+      </ul>
+
+      <p class="opsec-note">
+        <strong>OPSEC:</strong> HBV tools never "phone home" to public servers. All API communication is opt-in and user-controlled.
+      </p>
+    </section>
+
+    <!-- Quick Links Section -->
     <section class="panel">
       <h2>Quick Links</h2>
-      <ul class="list">
-        <li><a href="https://invokehoneybadger.com" target="_blank" rel="noopener">Main Site</a></li>
-        <li><a href="https://github.com/invokehoneybadger" target="_blank" rel="noopener">GitHub Org</a></li>
-      </ul>
-    </section>
-
-    <section class="panel">
-      <h2>Live Status (Mock)</h2>
-      <p id="status">Loading…</p>
+      <div class="links-grid">
+        <a href="https://invokehoneybadger.com" class="link-card" target="_blank" rel="noopener">
+          <strong>Main Site</strong>
+          <span>invokehoneybadger.com</span>
+        </a>
+        <a href="https://github.com/invokehoneybadger" class="link-card" target="_blank" rel="noopener">
+          <strong>GitHub Org</strong>
+          <span>@invokehoneybadger</span>
+        </a>
+        <a href="/api/v1/docs.html" class="link-card">
+          <strong>API v1 Docs</strong>
+          <span>Core endpoints</span>
+        </a>
+        <a href="/api/v2/docs.html" class="link-card">
+          <strong>API v2 Docs</strong>
+          <span>Beta features</span>
+        </a>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© 2025 HoneyBadger Vanguard — All Rights Reserved.</p>
+    <p>© 2025 HoneyBadger Vanguard — All Rights Reserved</p>
+    <p><a href="/.well-known/security.txt" rel="noopener">Security</a> · <a href="https://github.com/invokehoneybadger/invokehoneybadger-api" target="_blank" rel="noopener">GitHub</a></p>
   </footer>
 
   <script src="assets/js/main.js"></script>

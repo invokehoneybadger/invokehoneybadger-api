@@ -2,19 +2,447 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>HBV API v2 Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HBV API v2 Documentation (Beta)</title>
+  <meta name="description" content="API v2 beta documentation for HoneyBadger Vanguard - experimental endpoints and enhanced features.">
   <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
-  <header class="site-header"><div class="brand-text"><h1>HBV API v2</h1></div></header>
+  <header class="site-header">
+    <div class="brand">
+      <div class="version-badge badge-beta">v2</div>
+      <div class="brand-text">
+        <h1>HBV API v2 Documentation (Beta)</h1>
+        <p class="sub">Enhanced & Experimental Endpoints</p>
+      </div>
+    </div>
+  </header>
+
   <main class="content">
+    <!-- Overview -->
     <section class="panel">
       <h2>Overview</h2>
-      <p>Mock documentation for v2 endpoints.</p>
-      <p><a href="endpoints.json">View endpoints.json</a></p>
-      <p><a href="/">← Back to API Gateway</a></p>
+      <p>HBV API v2 introduces experimental features including webhooks, batch operations, GraphQL queries, and WebSocket streaming for real-time updates.</p>
+
+      <div class="opsec-note">
+        <strong>Beta Status:</strong> API v2 is in active development. Endpoints may change without notice. Use v1 for production deployments.
+      </div>
+
+      <h3>What's New in v2</h3>
+      <ul class="list">
+        <li>Webhook notifications for real-time events</li>
+        <li>Batch operations for bulk data submission</li>
+        <li>GraphQL query interface (experimental)</li>
+        <li>WebSocket streaming for live updates</li>
+        <li>Enhanced rate limits (200 req/min)</li>
+        <li>Improved error responses with detailed messages</li>
+      </ul>
+    </section>
+
+    <!-- Migration Guide -->
+    <section class="panel">
+      <h2>Migration from v1</h2>
+      <p>API v2 is backwards-compatible with v1 core endpoints. To migrate:</p>
+
+      <ol class="list">
+        <li>Update base URL from <code>/api/v1</code> to <code>/api/v2</code></li>
+        <li>Same authentication (API keys work across versions)</li>
+        <li>Review new optional fields in request bodies</li>
+        <li>Test webhook integrations in staging first</li>
+      </ol>
+
+      <div class="note">
+        <strong>Recommended:</strong> Use v1 for stable operations, v2 for testing new features.
+      </div>
+    </section>
+
+    <!-- New Features -->
+    <section class="panel">
+      <h2>New Features</h2>
+
+      <!-- Webhooks -->
+      <div class="endpoint-card">
+        <h3><span class="method-post">POST</span> /api/v2/webhooks</h3>
+        <p><strong>Protected endpoint</strong> - Register webhook for event notifications</p>
+
+        <h4>Request Body</h4>
+        <div class="code-block">
+          <pre><code>{
+  "url": "https://your-server.com/webhook",
+  "event_types": ["beacon", "result", "agent_offline"],
+  "secret": "your_webhook_secret"
+}</code></pre>
+        </div>
+
+        <h4>Event Types</h4>
+        <ul class="list">
+          <li><code>beacon</code> - Agent check-in events</li>
+          <li><code>result</code> - New results submitted</li>
+          <li><code>agent_offline</code> - Agent goes inactive</li>
+          <li><code>high_severity</code> - High/critical results detected</li>
+        </ul>
+
+        <h4>Webhook Payload Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "event": "result",
+  "timestamp": "2025-12-19T12:00:00Z",
+  "data": {
+    "agent_id": "agent-001",
+    "module": "port-scan",
+    "severity": "high",
+    "target": "example.com"
+  },
+  "signature": "sha256_hmac_signature"
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- Batch Operations -->
+      <div class="endpoint-card">
+        <h3><span class="method-post">POST</span> /api/v2/results/batch</h3>
+        <p><strong>Protected endpoint</strong> - Submit multiple results in one request</p>
+
+        <h4>Request Body</h4>
+        <div class="code-block">
+          <pre><code>{
+  "results": [
+    {
+      "agent_id": "agent-001",
+      "module": "port-scan",
+      "target": "example.com",
+      "data": {"ports": [80, 443]}
+    },
+    {
+      "agent_id": "agent-001",
+      "module": "subdomain-enum",
+      "target": "example.com",
+      "data": {"subdomains": ["www", "api", "mail"]}
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "success": true,
+  "processed": 2,
+  "failed": 0,
+  "ids": [
+    "550e8400-e29b-41d4-a716-446655440000",
+    "550e8400-e29b-41d4-a716-446655440001"
+  ]
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- GraphQL -->
+      <div class="endpoint-card">
+        <h3><span class="method-post">POST</span> /api/v2/graphql</h3>
+        <p><strong>Protected endpoint</strong> - GraphQL query interface (experimental)</p>
+
+        <h4>Query Example</h4>
+        <div class="code-block">
+          <pre><code>query {
+  agents(active: true) {
+    agent_id
+    hostname
+    last_seen
+    results(limit: 10) {
+      module
+      target
+      timestamp
+    }
+  }
+}</code></pre>
+        </div>
+
+        <h4>Response Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "data": {
+    "agents": [
+      {
+        "agent_id": "agent-001",
+        "hostname": "recon-box-01",
+        "last_seen": "2025-12-19T12:00:00Z",
+        "results": [
+          {
+            "module": "port-scan",
+            "target": "example.com",
+            "timestamp": "2025-12-19T11:00:00Z"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- WebSocket Streaming -->
+      <div class="endpoint-card">
+        <h3><span class="method-ws">WS</span> /api/v2/stream</h3>
+        <p><strong>Protected endpoint</strong> - Real-time event streaming via WebSocket</p>
+
+        <h4>Connection</h4>
+        <div class="code-block">
+          <pre><code>const ws = new WebSocket('wss://your-api.local/api/v2/stream');
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    type: 'auth',
+    api_key: 'hbv_your_key'
+  }));
+
+  ws.send(JSON.stringify({
+    type: 'subscribe',
+    events: ['beacon', 'result']
+  }));
+};
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Event received:', data);
+};</code></pre>
+        </div>
+
+        <h4>Event Stream Example</h4>
+        <div class="code-block">
+          <pre><code>{
+  "type": "beacon",
+  "agent_id": "agent-001",
+  "timestamp": "2025-12-19T12:00:00Z"
+}
+
+{
+  "type": "result",
+  "agent_id": "agent-001",
+  "module": "port-scan",
+  "severity": "high"
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced Endpoints -->
+    <section class="panel">
+      <h2>Enhanced v1 Endpoints</h2>
+      <p>All v1 endpoints are available in v2 with improvements:</p>
+
+      <div class="endpoint-card">
+        <h3><span class="method-get">GET</span> /api/v2/results</h3>
+        <p>Enhanced query capabilities with full-text search</p>
+
+        <h4>New Query Parameters</h4>
+        <ul class="list">
+          <li><code>search</code> - Full-text search across data fields</li>
+          <li><code>sort</code> - Sort by field (timestamp, severity, module)</li>
+          <li><code>order</code> - Sort order (asc, desc)</li>
+          <li><code>fields</code> - Comma-separated fields to return</li>
+        </ul>
+
+        <h4>Example</h4>
+        <div class="code-block">
+          <pre><code>curl -H "X-API-Key: hbv_your_key" \
+  "https://your-api.local/api/v2/results?search=port+80&sort=timestamp&order=desc"</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rate Limits -->
+    <section class="panel">
+      <h2>Rate Limits</h2>
+      <p>API v2 has increased rate limits:</p>
+
+      <table class="error-table">
+        <thead>
+          <tr>
+            <th>Endpoint Type</th>
+            <th>v1 Limit</th>
+            <th>v2 Limit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Standard endpoints</td>
+            <td>100 req/min</td>
+            <td>200 req/min</td>
+          </tr>
+          <tr>
+            <td>Batch operations</td>
+            <td>N/A</td>
+            <td>50 req/min</td>
+          </tr>
+          <tr>
+            <td>GraphQL</td>
+            <td>N/A</td>
+            <td>100 queries/min</td>
+          </tr>
+          <tr>
+            <td>WebSocket</td>
+            <td>N/A</td>
+            <td>10 connections/IP</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Code Examples -->
+    <section class="panel">
+      <h2>Code Examples</h2>
+
+      <h3>Python Client (v2)</h3>
+      <div class="code-block">
+        <pre><code>import requests
+
+class HBVClientV2:
+    def __init__(self, api_url, api_key):
+        self.api_url = api_url
+        self.headers = {'X-API-Key': api_key}
+
+    def submit_batch(self, results):
+        """Submit multiple results at once"""
+        response = requests.post(
+            f'{self.api_url}/api/v2/results/batch',
+            headers=self.headers,
+            json={'results': results}
+        )
+        return response.json()
+
+    def register_webhook(self, url, event_types, secret):
+        """Register webhook for notifications"""
+        response = requests.post(
+            f'{self.api_url}/api/v2/webhooks',
+            headers=self.headers,
+            json={
+                'url': url,
+                'event_types': event_types,
+                'secret': secret
+            }
+        )
+        return response.json()
+
+# Usage
+client = HBVClientV2('https://your-api.local', 'hbv_your_key')
+
+# Batch submit
+results = [
+    {'agent_id': 'agent-001', 'module': 'port-scan', 'target': 'example.com', 'data': {'ports': [80, 443]}},
+    {'agent_id': 'agent-001', 'module': 'dns-enum', 'target': 'example.com', 'data': {'records': []}}
+]
+client.submit_batch(results)
+
+# Register webhook
+client.register_webhook(
+    'https://my-server.com/webhook',
+    ['beacon', 'result'],
+    'my_webhook_secret'
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section class="panel">
+      <h2>Roadmap</h2>
+      <p>Planned features for future v2 releases:</p>
+
+      <ul class="list">
+        <li>Aggregated analytics endpoints</li>
+        <li>Custom alert rules engine</li>
+        <li>Data export (CSV, JSON, PDF)</li>
+        <li>Multi-tenant support</li>
+        <li>Role-based access control (RBAC)</li>
+        <li>Integrated threat intelligence feeds</li>
+      </ul>
+
+      <div class="opsec-note">
+        <strong>Feedback Welcome:</strong> API v2 is shaped by community feedback. Report issues or suggest features on GitHub.
+      </div>
+    </section>
+
+    <!-- Back Link -->
+    <section class="panel">
+      <p><a href="/" class="btn-secondary">← Back to API Gateway</a></p>
+      <p><a href="/api/v1/docs.html" class="btn-secondary">View API v1 Docs</a></p>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <p>© 2025 HoneyBadger Vanguard — API v2 Documentation (Beta)</p>
+  </footer>
+
+  <style>
+    .badge-beta {
+      background: var(--hbv-orange);
+      color: #000;
+    }
+
+    .endpoint-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--hbv-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .endpoint-card h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .method-get, .method-post, .method-ws {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      font-family: monospace;
+    }
+
+    .method-get {
+      background: var(--hbv-accent);
+      color: #000;
+    }
+
+    .method-post {
+      background: var(--hbv-green);
+      color: #000;
+    }
+
+    .method-ws {
+      background: var(--hbv-orange);
+      color: #000;
+    }
+
+    .endpoint-card h4 {
+      color: var(--hbv-fg-dim);
+      font-size: 15px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .error-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .error-table th,
+    .error-table td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid var(--hbv-border);
+    }
+
+    .error-table th {
+      background: rgba(251, 238, 0, 0.1);
+      color: var(--hbv-fg);
+      font-weight: 600;
+    }
+  </style>
 </body>
 </html>
